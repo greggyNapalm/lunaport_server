@@ -1,0 +1,41 @@
+Source: python-lunaport-server
+Section: python
+Priority: optional
+Maintainer: Gregory Komissarov <gregory.komissarov@gmail.com>
+Build-Depends: debhelper (>=7),
+         python (>= 2.7.1-0ubuntu2),
+         python (<< 2.8),
+XS-Python-Version: >= 2.7
+Standards-Version: 3.8.3
+
+Package: python-lunaport-server
+Architecture: amd64
+Depends: python (>= 2.7.1-0ubuntu2),
+         python (<< 2.8),
+         passwd (>= 1:4.1.4.2+svn3283-3ubuntu5),
+         python-psutil (>=0.6.1-5),
+         python-redis (>= 2.4.9-1) | python-redis-2.7.5,
+         msgpack-python (>= 0.1.10-1),
+         supervisor (>=3.0a8-1.1),
+         gunicorn (>=0.13.4-1),
+         nginx (>=1.2.1-1),
+         redis-server (>=2:2.2.12-1build1),
+         python-flask (=0.10.1-1),
+         python-raven (>=3.4.1),
+         python-dateutil (>=1.5-1),
+         python-tz (>=2011k),
+         postgresql-9.3 (>=9.3.0-2.pgdg12.4+1),
+         postgresql-server-dev-9.3 (>=9.3.0-2.pgdg12.4+1),
+         rabbitmq-server (>=3.1.5-1),
+         python-lunaport-ext-flask-sqlalchemy (=1.0),
+         python-lunaport-ext-graypy (>=0.2.9-1),
+         python-lunaport-ext-validictory (>=0.9.1),
+         python-lunaport-ext-psycopg2 (>=2.5.1),
+         python-lunaport-ext-blinker (>=1.3),
+         python-lunaport-worker (>=0.1.22),
+         lunaport-cfg-postgresql-server (>=0.0.1),
+         lunaport-cfg-redis-server (>=0.0.1),
+         lunaport-cfg-supervisor (>=0.0.1),
+         lunaport-cfg-nginx (>=0.0.1)
+Conflicts: python-redis
+Description: Lunaport Server @see http://wiki.domain.ru/Napalm/luna-port

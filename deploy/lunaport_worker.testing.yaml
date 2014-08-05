@@ -1,0 +1,44 @@
+#-----
+# main
+#-----
+logging:
+    level: 'debug' #  *logging* module levels
+    format: '%(asctime)s  %(message)s'
+    handlers:
+        gray_gelf: ['graylog2.server.org', 12201] #  host and port pair
+        file: False #  /full/path/to/file
+        stream: True #  Bool, log to STDOUT or not
+
+redis:
+    unix_socket_path: '/var/run/redis/redis.sock'
+    db: 1
+
+arts_upload_path: '/path/to/web_static/artefacts'
+
+#------------
+# Remote APIs
+#------------
+lunaport1:
+    to: 20.0
+    epoint: 'http://<PUB>:<PRIVAT>@lunaport.org'
+
+
+email:
+    dst_host: '127.0.0.1'
+    dst_port: 25
+    #auth: ['login', 'passwd']
+
+xmpp:
+    jid: 'usr@xmpp-domain.org'
+    passwd: '<PASSWD>'
+
+issue_providers:
+    jira:
+        fqdn: 'jira-api.domain.org'
+        to: 60.0
+        oauth: '<OAUTH_KEY>'
+
+#-----------
+# monitoring
+#-----------
+sentry_dsn: 'http://sentry.domain.org/id'

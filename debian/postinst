@@ -1,0 +1,88 @@
+#!/bin/sh
+# see: dh_installdeb(1)
+
+set -e
+
+# summary of how this script can be called:
+#        * <postinst> `configure' <most-recently-configured-version>
+#        * <old-postinst> `abort-upgrade' <new version>
+#        * <conflictor's-postinst> `abort-remove' `in-favour' <package>
+#          <new-version>
+#        * <postinst> `abort-remove'
+#        * <deconfigured's-postinst> `abort-deconfigure' `in-favour'
+#          <failed-install-package> <version> `removing'
+#          <conflicting-package> <version>
+# for details, see http://www.debian.org/doc/debian-policy/ or
+# the debian-policy package
+
+#DEBHELPER#
+
+setup_lunaport_user() {
+    if ! getent passwd lunaport >/dev/null; then
+        adduser --quiet --system --no-create-home --home /opt/lunaport --shell /usr/sbin/nologin lunaport
+    fi
+
+    # to be able to r/rw from unix sockets.
+    usermod -a -G redis lunaport || true 
+    usermod -a -G postgres lunaport  || true
+}
+
+fix_conffile_permissions() {
+    mkdir /opt/lunaport /etc/lunaport || true
+
+    chown -R lunaport /opt/lunaport /etc/lunaport || true
+
+    chmod 770 /etc/lunaport || true
+    chmod 0751 /opt/lunaport || true
+}
+copy_default_configs() {
+    if [ ! -f /etc/lunaport/server.cfg ]; then
+        cp -p /etc/lunaport/lunaport_server.default.cfg /etc/lunaport/server.cfg
+    fi
+    if [ ! -f /etc/lunaport/worker.yaml ]; then
+        cp -p /etc/lunaport/lunaport_worker.default.yaml /etc/lunaport/worker.yaml
+    fi
+}
+setup_mq_credentials() {
+    rabbitmqctl add_user lunaport lunamq || true
+    rabbitmqctl add_vhost lunaport || true
+    rabbitmqctl set_permissions -p lunaport lunaport ".*" ".*" ".*"
+}
+populate_db () {
+    cd /tmp;
+    if sudo -u postgres psql -l | awk '{print $1}' | grep -c "^lunaport"; then
+            echo "Lunaport database allready exists";
+    else
+            echo "Lunaport database missing, create new one.";
+            sudo -u postgres psql -d postgres -c "CREATE USER lunaport WITH PASSWORD 'lunardbms';"
+            sudo -u postgres psql -d postgres -c "CREATE DATABASE lunaport"
+            sudo -u postgres psql -d lunaport -a -f /usr/share/lunaport/schema.sql >/dev/null
+    fi
+    cd -
+}
+
+case "$1" in
+    configure)
+        setup_lunaport_user
+        fix_conffile_permissions
+        setup_mq_credentials
+        populate_db
+        copy_default_configs
+        
+        ln -s /usr/share/pyshared/lunaport_server /usr/lib/pymodules/python2.7/ || true
+
+        service supervisor start || true
+        supervisorctl restart lunaport_server
+    ;;
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+
+    *)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+exit 0
+# EOF

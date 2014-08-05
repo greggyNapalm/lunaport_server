@@ -1,0 +1,3 @@
+deploy/lunaport_server.default.cfg etc/lunaport 
+deploy/.touch opt/lunaport/artefacts
+deploy/sql/schema.sql usr/share/lunaport
